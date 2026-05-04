@@ -1,0 +1,40 @@
+project:
+  name: Modal_Keras_Finetuning
+  type: youtube-tutorial-repo
+  owner: terrance-whitehurst
+  status: planning-complete
+
+decisions:
+  dataset:
+    id: "keremberke/underwater-fish-detection"
+    reason: "Visual wow factor for thumbnails, 6 classes, ~1400 images, no overlap with existing repos"
+    rejected:
+      - "chess-pieces — less visually stunning, lower novelty"
+      - "playing-cards — 52 classes too many for tutorial"
+      - "food/vegetables — already covered in RF-DETR repo"
+  model:
+    class: "keras_hub.models.YOLOV8Detector"
+    preset: "yolo_v8_m_coco"
+    reason: "Most recognized name in detection, clean keras-hub API, simple from_preset()"
+  epochs:
+    default: 20
+    production: 50
+    reason: "Balance between fast demo (~10 min) and visible results. UX research says 15 min clone-to-result is golden."
+
+patterns_observed:
+  repo_style:
+    - "Single-file philosophy in apps/"
+    - "Config constants at top of script"
+    - "Modal Volume for persistence"
+    - "uv for deps, never pip"
+    - "README: hero images → what this shows → prerequisites → setup → run → config → how it works"
+    - "No license, no contributing sections"
+  ux_insights:
+    - "35% abandon at environment setup — Modal solves this, lead with it"
+    - "train()→infer() must chain automatically — never require second command"
+    - "Per-epoch logs visible in Modal output prevent 'is it broken?' anxiety"
+    - "Show output FIRST in README — hero images convert visitors to users"
+
+team_observations:
+  product_manager: "Strong at concrete technical recommendations. Gave exact dataset IDs and model classes."
+  ux_researcher: "Excellent viewer persona analysis. Friction point rankings directly influenced epoch count decision."

@@ -1,0 +1,35 @@
+project:
+  name: Modal_Keras_Finetuning
+  type: YouTube tutorial companion repo
+  owner: Terrance Whitehurst (terrance-whitehurst)
+  status: complete — code, README, pyproject.toml, uv.lock all built and validated
+
+architecture:
+  pattern: Single-file Modal pipeline
+  main_file: apps/keras_finetune.py
+  stages:
+    - download_dataset: HF dataset → numpy arrays on Modal Volume
+    - train: D-FINE via keras-hub, two-phase freeze/unfreeze
+    - predict: inference + PIL bounding box visualization
+  dataset: Francesco/aquarium-qlnqy (aquarium — fish, sharks, jellyfish, stingrays)
+  model: DFineObjectDetector from keras-hub (dfine_nano_coco preset)
+  infra: Modal L4 GPU, uv for deps
+
+style_rules:
+  - Single file in apps/
+  - Config constants at top with comment dividers
+  - README matches Modal_RF-DETR_Vegetable_Detection structure
+  - No license, no contributing, no badges
+  - uv sync, not pip install
+
+validation_findings:
+  - keras-hub D-FINE requires >=0.28 (not 0.18)
+  - predict() needs keras_hub import for model deserialization
+  - Images must be normalized 0-1 for pretrained backbone
+  - HF token secret must be wired into decorator if referenced in README
+
+team_observations:
+  - Planning picked good dataset pivot (aquarium vs underwater-fish)
+  - Engineering adapted well when YOLOV8Detector wasn't in keras-hub
+  - Validation caught 4 real issues including 2 crash bugs
+  - Sequential delegation (Plan → Build → Validate → Fix) worked well

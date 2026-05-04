@@ -1,0 +1,65 @@
+project: Modal_Keras_Finetuning
+purpose: YouTube tutorial repo for Keras + HuggingFace object detection on Modal
+
+personas:
+  primary:
+    name: "The Upskilling Practitioner"
+    experience: "1–3 years ML, knows PyTorch/TF, unfamiliar with Keras3/KerasHub"
+    behavior: "Watches ML YouTube while building side projects"
+    core_goal: "Find a template to adapt to their own domain"
+    pain_point: "Environment setup / CUDA hell"
+  secondary:
+    name: "The Curious Student"
+    experience: "CS student or self-learner post-fast.ai/Coursera"
+    behavior: "Won't try repo unless setup is < 4 commands"
+    core_goal: "See something visually cool, star the repo"
+
+dataset_selection_criteria:
+  rule_1: "Instant recognition — objects ID'd in <1 second"
+  rule_2: "Unexpectedness — 'I didn't know ML could do THAT'"
+  rule_3: "Density + color variety — 5-8 colorful boxes in thumbnail"
+  top_picks:
+    - domain: "Chess pieces"
+      hf_dataset: "keremberke/chess-pieces-detection"
+      why: "Recognizable, clean classes, compelling app story (live game analysis)"
+    - domain: "Playing cards"
+      hf_dataset: "keremberke/playing-card-detection"
+      why: "Universal recognition, 52 classes, poker app angle"
+  avoid:
+    - "Food/vegetables — Terrance already has RF-DETR vegetable detection"
+    - "Autonomous driving — massively overrepresented, viewer fatigue"
+    - "Generic animals (dog/cat) — derivative"
+
+friction_points:
+  - name: "Environment Hell"
+    abandon_rate: "~35%"
+    fix: "Modal eliminates this — lead README with 'No local GPU. No CUDA.'"
+  - name: "Credential Friction"
+    abandon_rate: "~20%"
+    fix: "Max 2 accounts (Modal + HF). Copy-pasteable commands."
+  - name: "Silent Training Wait"
+    abandon_rate: "~15%"
+    fix: "Per-epoch logging in Modal output. Never go dark for >2 min."
+  - name: "No Visual Confirmation"
+    abandon_rate: "~15%"
+    fix: "Auto-run infer() after train(). Print download command for result image."
+  - name: "Customization Wall"
+    abandon_rate: "~10%"
+    fix: "Config constants at top with inline comments."
+
+pacing:
+  golden_number: "15 minutes from git clone to first detection image"
+  flow: "clone → uv sync → modal setup → modal secret → modal run"
+  default_epochs: "10 or fewer for fast demo"
+  key_principle: "train() and infer() must chain automatically in default run"
+
+readme_ux:
+  - "Hero images FIRST — show the output before asking viewer to do anything"
+  - "No License section, No Contributing section (per user request)"
+  - "Prerequisites table with exactly 2 rows (Modal + HuggingFace)"
+  - "Single run command — no multi-step orchestration"
+
+open_questions:
+  - "Engineering needs to verify chess/playing card HF dataset annotation quality"
+  - "Engineering needs to benchmark L4 GPU train time for 10 epochs"
+  - "KerasHub object detection API compatibility with HF datasets needs confirmation"

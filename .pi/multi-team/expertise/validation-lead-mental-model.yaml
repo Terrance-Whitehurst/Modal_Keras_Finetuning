@@ -1,0 +1,37 @@
+project:
+  name: Modal Keras Aquarium Detection
+  type: tutorial repo (YouTube companion)
+  creator_style: terrance-whitehurst (single-file, Modal, uv, L4 GPU)
+  model: DFineObjectDetector (keras-hub 0.28+)
+  dataset: Francesco/aquarium-qlnqy (HuggingFace)
+
+validation_patterns:
+  critical_bugs_caught:
+    - category: "custom layer registration"
+      detail: "keras.saving.load_model() needs keras_hub imported to deserialize custom layers"
+      lesson: "Any keras-hub model save/load requires keras_hub in scope at load time"
+    - category: "version floor mismatch"
+      detail: "pyproject.toml said >=0.18 but DFine only exists in >=0.28"
+      lesson: "When Engineering discovers API only exists in specific version, verify dep floor is updated everywhere (pyproject AND docker/modal image)"
+    - category: "image normalization"
+      detail: "float32 images left at 0-255 instead of 0-1, pretrained backbone expects normalized"
+      lesson: "Always check: does the pretrained model expect normalized inputs? PIL→numpy gives 0-255"
+
+  recurring_risk_areas:
+    - "Model save/load round-trips with custom layers"
+    - "Version floors in deps not matching verified API availability"
+    - "Data normalization mismatches between preprocessing and model expectations"
+    - "README instructions that create dead patterns (secrets wired in docs but not code)"
+
+  what_passed:
+    - "Bbox format alignment (xywh throughout pipeline)"
+    - "Epoch counting logic with two-phase training"
+    - "Modal volume persistence pattern"
+    - "README style matching reference repo"
+    - "Security posture (.env gitignored, no hardcoded secrets)"
+
+observations:
+  - date: "2026-05-03"
+    note: "Engineering team did excellent API research (verified D-FINE existence, dataset format) but missed the import registration issue. Suggests they tested training but not the full predict() path end-to-end."
+  - date: "2026-05-03"
+    note: "Planning team's initial recommendations (YOLOV8Detector, keremberke dataset) were both invalid — Engineering caught and adapted. Good engineering resilience."

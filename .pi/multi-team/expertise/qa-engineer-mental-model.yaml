@@ -1,0 +1,63 @@
+project: Modal_Keras_Finetuning
+last_updated: "2026-05-03"
+
+codebase_overview:
+  type: single-file Modal tutorial repo
+  main_file: apps/keras_finetune.py (322 lines)
+  framework: Keras 3 + keras-hub 0.28.0 + TensorFlow backend
+  model: DFineObjectDetector (not YOLOV8 — does not exist in keras-hub)
+  dataset: Francesco/aquarium-qlnqy (verified working; keremberke/* datasets are dead)
+  infra: Modal cloud GPU (L4), Modal Volume for persistence
+
+recurring_bug_categories:
+  custom_layer_deserialization:
+    pattern: "keras.saving.load_model() fails when custom-layer packages aren't imported"
+    this_instance: "predict() missing `import keras_hub` → DFineObjectDetector not registered"
+    rule: "Any function loading a keras-hub model must import keras_hub FIRST, even if unused"
+
+  version_floor_too_low:
+    pattern: ">=X.Y allows incompatible older versions when a feature was added at X.Z"
+    this_instance: "keras-hub>=0.18 allows installs without DFineObjectDetector (needs >=0.28)"
+    rule: "Always pin to the minimum version where the specific API was confirmed to exist"
+    note: "Modal image .pip_install() is independent of pyproject.toml — both must be updated"
+
+  normalization_mismatch:
+    pattern: "numpy/PIL images default to uint8 0-255 range; pretrained models often expect 0-1"
+    this_instance: "float32(image) without /255.0 fed to DFine backbone pretrained on ImageNet"
+    rule: "Check normalization expectations whenever bypassing a model's official preprocessor"
+
+modal_patterns:
+  volume_reload: "volume.reload() needed at start of each function that reads committed data"
+  volume_commit: "volume.commit() required after writes — without it, data is lost after container exits"
+  env_var_timing: "os.environ['KERAS_BACKEND'] must be set before `import keras` inside function body"
+  image_deps: "Modal image .pip_install() builds independently of pyproject.toml — pin both"
+
+testing_priorities:
+  high_risk:
+    - "Model save/load round-trips with custom layers (always check custom object registration)"
+    - "Version floors on rapidly-evolving ML packages (keras-hub, torch, transformers)"
+    - "Normalization — bytes vs. floats, 0-255 vs. 0-1 vs. ImageNet mean/std"
+  medium_risk:
+    - "Split name variations across HF datasets (train/valid/validation/test differ by creator)"
+    - "Two-phase training epoch counting (fresh fit() resets counter — verify total adds up)"
+  low_risk:
+    - "PIL drawing edge cases (negative coords near image boundary)"
+    - "Font rendering at small pixel sizes on tutorial hero images"
+
+readme_style_rules:
+  section_order:
+    - "Title → one-liner → YouTube callout → hero images → What this shows → Prerequisites table"
+    - "→ Setup (numbered H3 steps) → Run it → Configuration → How it works → Download results"
+  hard_rules:
+    - "No License section"
+    - "No Contributing section"
+    - "No badges"
+    - "Every code block must have language tag (bash/python)"
+    - "--- divider between every major section"
+  config_block_in_readme: "Show only viewer-actionable constants — omit infra internals like GLOBAL_CLIPNORM"
+
+observations:
+  - "Engineering correctly pivoted both model and dataset when originals were unavailable"
+  - "The two critical bugs (C1 missing import, C2 version floor) are both in predict() — the last stage"
+  - "Backend Dev verified API against real installs — this prevented worse issues; trust verified API notes"
+  - "uv.lock pins local deps but Modal image builds independently from pip specifiers — dual-pinning required"

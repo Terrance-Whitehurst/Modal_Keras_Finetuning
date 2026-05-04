@@ -1,0 +1,60 @@
+project:
+  name: Modal_Keras_Finetuning
+  type: YouTube tutorial companion repo
+  creator: Terrance Whitehurst (terrance-whitehurst)
+  status: planning phase, clean slate
+
+decisions:
+  dataset:
+    id: "keremberke/underwater-fish-detection"
+    rationale: "Max YouTube visual appeal, zero overlap with existing repos, ~1400 images fits L4 ~20min"
+    alternatives_rejected:
+      - id: "keremberke/aerial-vehicle-detection"
+        reason: "Second choice — good visual but less wow than underwater"
+      - id: "keremberke/playing-card-detection"
+        reason: "Looks like toy demo, not real application"
+
+  model:
+    name: "YOLOV8Detector via keras-hub"
+    preset: "yolo_v8_m_coco"
+    rationale: "Name recognition, clean keras-hub API, COCO pretrained backbone, fits tutorial scope"
+    alternatives_rejected:
+      - name: "RetinaNet"
+        reason: "Less name recognition, more complex anchor config to explain"
+
+  training_config:
+    epochs: 50
+    batch_size: 16
+    learning_rate: 1e-4
+    lr_schedule: cosine_decay
+    image_size: "640x640"
+    gpu: L4
+    expected_wall_time: "25-30 min total"
+
+  scope_cuts:
+    - "No custom training loop — model.fit() only"
+    - "No video inference — images only"
+    - "No model export (ONNX/TFLite)"
+    - "No augmentation beyond keras-hub defaults"
+    - "No W&B/MLflow logging"
+
+style_constraints:
+  readme_template: "Modal_RF-DETR_Vegetable_Detection (exact structure)"
+  no_license_section: true
+  no_contributing_section: true
+  single_file: true
+  file_path: "apps/keras_fish_detection.py"
+
+pipeline:
+  stages:
+    - name: download_dataset
+      output: "/root/data/ on Modal Volume"
+    - name: train
+      output: "/root/data/checkpoints/best.keras"
+    - name: predict
+      output: "/root/data/predictions/*.jpg"
+
+observations:
+  - "Creator's first Keras repo — should be especially clean and beginner-friendly"
+  - "Creator's first HF dataset repo — download pattern is a teaching moment"
+  - "Series continuity matters — this is repo 3 in his Modal CV series"

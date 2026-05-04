@@ -1,0 +1,64 @@
+project:
+  name: Modal_Keras_Finetuning
+  type: public_tutorial_repo
+  threat_model: embarrassment_and_credential_leakage
+  not_in_scope: [auth_bypass, injection, privilege_escalation, network_services]
+
+review_completed:
+  date: "2026-05-03"
+  files_reviewed:
+    - apps/keras_finetune.py
+    - pyproject.toml
+    - .gitignore
+    - README.md
+
+findings:
+  critical: []
+  important:
+    - id: HF_TOKEN_NOT_WIRED
+      description: >
+        README step 4 instructs users to run `modal secret create huggingface-token`
+        but download_dataset() decorator has no secrets=[...] parameter.
+        The secret is created but never injected into the Modal container.
+        HF_TOKEN is therefore not available as an env var when load_dataset() runs.
+      impact: >
+        Zero for this tutorial (public dataset). Broken pattern for viewers
+        who adapt to private/gated datasets.
+      fix_options:
+        - "Remove README step 4 entirely (dataset is public, step is unnecessary)"
+        - "Add secrets=[modal.Secret.from_name('huggingface-token', required=False)] to download_dataset decorator"
+  nice_to_have:
+    - id: LOOSE_IMAGE_DEPS
+      description: >
+        Modal Image definition uses >= bounds (same as pyproject.toml) but without
+        a lockfile. Modal will pull latest-compatible at image build time, which
+        may diverge from uv.lock. If keras-hub breaks DFine API in a future release,
+        tutorial silently fails in cloud while local still works.
+      impact: Reproducibility, not security. Acceptable for tutorial repos.
+
+clean_checks:
+  - env_gitignored: true  # .env covered by .gitignore exact match
+  - no_hardcoded_secrets: true  # full scan of keras_finetune.py confirmed
+  - hf_token_in_code: false  # correct — no token in source
+  - trust_remote_code: false  # load_dataset() called without trust_remote_code=True
+  - supply_chain_clean: true  # all 7 deps from established publishers
+
+patterns_observed:
+  credential_management: modal_secret_create  # creator's established pattern — correct
+  env_file_usage: local_only_never_in_code
+  secret_injection_pattern: NOT_USED  # secrets parameter missing from decorators
+
+auth_surfaces:
+  - surface: HuggingFace dataset access
+    method: HF_TOKEN env var (via Modal secret, if wired)
+    current_state: not_wired_into_modal_function
+    risk: low (public dataset used)
+  - surface: Modal platform auth
+    method: modal setup (external CLI auth)
+    current_state: correct
+    risk: none
+
+notes:
+  - uv.lock provides local reproducibility; Modal Image side is unpinned
+  - .gitignore covers exact ".env" only; alternate dotenv names not covered but no other dotenv files exist
+  - ANTHROPIC_API_KEY in .env is irrelevant to the script (not used by keras_finetune.py)

@@ -1,0 +1,19 @@
+[project]
+name = "modal-keras-finetuning"
+version = "0.1.0"
+description = "Fine-tune a D-FINE object detection model with Keras on Modal — companion code for a YouTube walkthrough."
+requires-python = ">=3.11"
+
+dependencies = [
+    "modal>=0.73",
+    "keras>=3.5",
+    "keras-hub>=0.28",
+    "tensorflow>=2.16",
+    "datasets>=3.0",
+    "pillow>=10.0",
+    "numpy>=1.26",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
